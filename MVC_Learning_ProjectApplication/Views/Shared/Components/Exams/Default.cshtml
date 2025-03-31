@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Exam>
+
+<div class="table-responsive" style="margin-top: 12px;">
+	<table class="table table-bordered table-striped table-hover text-center align-middle">
+		<thead>
+			<tr>
+				<th style="min-width: 90px;">Dean Name</th>
+				<th style="min-width: 120px;">Student Name</th>
+				<th style="min-width: 150px;">Modification Date</th>
+				<th style="min-width: 60px;">Course Work</th>
+				<th style="min-width: 60px;">Midterm Exam</th>
+				<th style="min-width: 60px;">Final Exam</th>
+				<th style="min-width: 60px;">Average GPA</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var exam in Model)
+			{
+				<tr>
+					<td>@exam.DeanName</td>
+					<td>@exam.StudentName</td>
+					<td>@exam.DateOfModificition.ToString("MM/dd/yyyy HH:mm")</td>
+					<td>@exam.CourseWork</td>
+					<td>@exam.Midterm</td>
+					<td>@exam.Final_work</td>
+					<td class="fw-bold text-primary">
+						@(Math.Round((exam.CourseWork * 0.1 + exam.Midterm * 0.3 + exam.Final_work * 0.6), 2))
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>

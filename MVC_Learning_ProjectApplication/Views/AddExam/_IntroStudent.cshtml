@@ -1,0 +1,33 @@
+﻿@model AddExamViewModel
+@{
+    var student = ViewBag.Student as Student;
+}
+
+@if (student != null)
+{
+    <div class="border p-2 mb-2">
+        <strong>Student Name:</strong> @student.Name<br />
+        <strong>Student Surname:</strong> @student.SurName<br />
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">Student not found.</div>
+}
+
+
+<div class="form-group">
+    <label asp-for="CourseWork">Course Work Result</label>
+    <input asp-for="CourseWork" class="form-control" type="number" min="0" max="100" />
+    <span asp-validation-for="CourseWork" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Midterm">Midterm Result</label>
+    <input asp-for="Midterm" class="form-control" type="number" min="0" max="100" />
+    <span asp-validation-for="Midterm" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="FinalWork">Final Exam Result</label>
+    <input asp-for="FinalWork" class="form-control" type="number" min="0" max="100" />
+    <span asp-validation-for="FinalWork" class="text-danger"></span>
+</div>

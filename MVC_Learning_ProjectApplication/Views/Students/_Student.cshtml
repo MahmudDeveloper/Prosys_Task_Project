@@ -1,0 +1,62 @@
+﻿@model StudentViewModel
+@{
+    string action = ViewBag.Action ?? string.Empty;
+}
+<form method="post" asp-controller="Students" asp-action="@action">
+    @if(action=="Edit")
+    {
+        <input type="hidden" asp-for="Student.Id" />
+    }
+    <div class="text-danger" asp-validation-summary="All"></div>
+
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Student.Id" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <select asp-for="Student.ClassId" class="form-control">
+                <option value="">-- Select Class --</option>
+                @if (Model.Classes != null && Model.Classes.Count() > 0)
+                {
+                    @foreach (var classC in Model.Classes)
+                    {
+                        <option value="@classC.Id">@classC.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col">
+            <span class="text-danger" asp-validation-for="Student.ClassId"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Student.Name" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <input type="text" asp-for="Student.Name" class="form-control" />
+        </div>
+        <div class="col">
+            <span class="text-danger" asp-validation-for="Student.Name"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-2">
+            <label asp-for="Student.SurName" class="col-form-label"></label>
+        </div>
+        <div class="col-6">
+            <input type="text" asp-for="Student.SurName" class="form-control" />
+        </div>
+        <div class="col">
+            <span class="text-danger" asp-validation-for="Student.SurName"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-2">
+            <input type="submit" class="btn btn-primary" value="Submit" />
+        </div>
+    </div>
+</form>

@@ -1,0 +1,88 @@
+﻿@model AddExamViewModel
+@section title{
+	<div class="row">
+		<div class="col-7"><h3>Dean's Console</h3></div>
+		<div class="col-3">
+		</div>
+	</div>
+}
+<br />
+<div class="row">
+	<div class="col-4">
+		<div class="text-danger" asp-validation-Summary="All"></div>
+		@*Category selection*@
+		<div class="row mb-3">
+			<select asp-for="SelectedClassId" class="form-control">
+				<option value="">-- Select Class --</option>
+				@if (Model.Classes != null && Model.Classes.Count() > 0)
+				{
+					@foreach (var classC in Model.Classes)
+					{
+						<option value="@classC.Id">@classC.Name</option>
+					}
+				}
+			</select>
+		</div>
+		<br />
+		<div id="studentsPartial">
+			@*Students List*@
+		</div>
+		<br />
+		@*Exam results Form*@
+		<form method="post" asp-controller="AddExam" asp-action="AddExam" id="formSale">
+			<input asp-for="SelectedStudentId" type="hidden" />
+
+			<div id="studentDetailPartial">
+				@* Textboxex will be here*@
+			</div>
+			<br />
+			<div class="row mb-3">
+				<div class="col-2">
+					<input type="submit" class="btn btn-primary" value="Submit" />
+				</div>
+			</div>
+		</form>
+
+	</div>
+	<div class="col">
+		@await Component.InvokeAsync("Exams", "Dean")
+	</div>
+</div>
+@section Scripts {
+	<script>
+		$(function () {
+			$("#formSale").hide();
+
+			var selectedClassId = $("#SelectedClassId").val();
+			if(selectedClassId>0){
+				loadStudents(selectedClassId);
+			}
+
+			$("#SelectedClassId").on("change", function () {
+				loadStudents($(this).val())
+			}); 
+
+			$('#studentsPartial').on('click', '.student-row', function () {
+				$('.student-row').removeClass('highlight');
+				$(this).addClass('highlight');
+
+				var studId = $(this).attr('student-id');
+
+				$('#studentDetailPartial').load('/AddExam/AddExamStudentPartial', { studentId: studId  });
+
+				if(studId>0){
+					$("#SelectedStudentId").val(studId);
+					$("#formSale").show();
+				}
+				else{
+					$("#formSale").hide();
+				}
+			});
+		});
+		function loadStudents(classId){
+			$("#studentsPartial").load("/Students/StudentsByClassPartial", { classId: classId });
+			$("#studentDetailPartial").html("");
+			$("#formSale").hide();
+		}
+	</script>
+}
