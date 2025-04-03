@@ -4,13 +4,14 @@
 	<table class="table table-bordered table-striped table-hover text-center align-middle">
 		<thead>
 			<tr>
-				<th style="min-width: 90px;">Dean Name</th>
-				<th style="min-width: 120px;">Student Name</th>
-				<th style="min-width: 150px;">Modification Date</th>
-				<th style="min-width: 60px;">Course Work</th>
-				<th style="min-width: 60px;">Midterm Exam</th>
-				<th style="min-width: 60px;">Final Exam</th>
-				<th style="min-width: 60px;">Average GPA</th>
+				<th style="min-width: 60px;">Dean Name</th>
+				<th style="min-width: 100px;">Student Name</th>
+				<th style="min-width: 100px;">Class Name</th>
+				<th style="min-width: 130px;">Modification Date</th>
+				<th style="min-width: 50px;">Course Work</th>
+				<th style="min-width: 50px;">Midterm Exam</th>
+				<th style="min-width: 50px;">Final Exam</th>
+				<th style="min-width: 50px;">Average GPA</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -18,7 +19,8 @@
 			{
 				<tr>
 					<td>@exam.DeanName</td>
-					<td>@exam.StudentName</td>
+					<td>@exam.Student?.Name</td>    
+					<td>@exam.Class?.Name</td>      
 					<td>@exam.DateOfModificition.ToString("MM/dd/yyyy HH:mm")</td>
 					<td>@exam.CourseWork</td>
 					<td>@exam.Midterm</td>

@@ -1,14 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MVC_Learning_ProjectApplication.Models;
 
-namespace MVC_Learning_ProjectApplication.ViewComponents
+public class ExamsViewComponent : ViewComponent
 {
-    public class ExamsViewComponent:ViewComponent
+    private readonly ExamsRepository _repo;
+
+    public ExamsViewComponent(ExamsRepository repo)
     {
-        public IViewComponentResult Invoke(string userName)
-        {
-            var transactions = ExamsRepository.GetByDayAndDean(userName, DateTime.Now);
-            return View(transactions);
-        }
+        _repo = repo;
+    }
+
+    public IViewComponentResult Invoke(string deanName)
+    {
+        var exams = _repo.GetByDayAndDean(deanName, DateTime.Now);
+        return View(exams);
     }
 }

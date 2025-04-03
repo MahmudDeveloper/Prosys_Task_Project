@@ -1,54 +1,52 @@
-﻿namespace MVC_Learning_ProjectApplication.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace MVC_Learning_ProjectApplication.Models
 {
     public class ClassesRepository
     {
-        private static List<Class> _classes = new List<Class>()
-        {
-            new Class {Id = 1, Name ="Mat", Description="Mathematics" },
-            new Class {Id = 2, Name ="Phy", Description="Physics" },
-            new Class {Id = 3, Name ="Bio", Description="Biology" }
-        };
+        private readonly AppDbContext _context;
 
-        private static int _nextClassId = 4;
-
-        public static void AddClass(Class classC)
+        public ClassesRepository(AppDbContext context)
         {
-            classC.Id = _nextClassId++;
-            _classes.Add(classC);
+            _context = context;
         }
 
-        public static List<Class> GetClasses() => _classes;
-        
-        public static Class? GetClassById(int id)
+        public List<Class> GetClasses()
         {
-            var classC = _classes.FirstOrDefault(c => c.Id == id);
-            if (classC != null)
-            {
-                return new Class
-                {
-                    Id = classC.Id,
-                    Name = classC.Name,
-                    Description = classC.Description
-                };
-            }
-           return null;
+            return _context.Classes.ToList();
         }
-        public static void UpdateClass(int id, Class classC)
+
+        public Class? GetClassById(int id)
+        {
+            return _context.Classes.FirstOrDefault(c => c.Id == id);
+        }
+
+        public void AddClass(Class classC)
+        {
+            _context.Classes.Add(classC);
+            _context.SaveChanges();
+        }
+
+        public void UpdateClass(int id, Class classC)
         {
             if (id != classC.Id) return;
-            var classToUpdate = _classes.FirstOrDefault(c => c.Id == id);
+
+            var classToUpdate = _context.Classes.FirstOrDefault(c => c.Id == id);
             if (classToUpdate != null)
             {
                 classToUpdate.Name = classC.Name;
                 classToUpdate.Description = classC.Description;
+                _context.SaveChanges();
             }
         }
-        public static void DeleteClass(int id)
+
+        public void DeleteClass(int id)
         {
-            var classToDelete = _classes.FirstOrDefault(c=> c.Id==id);
+            var classToDelete = _context.Classes.FirstOrDefault(c => c.Id == id);
             if (classToDelete != null)
             {
-                _classes.Remove(classToDelete);
+                _context.Classes.Remove(classToDelete);
+                _context.SaveChanges();
             }
         }
     }

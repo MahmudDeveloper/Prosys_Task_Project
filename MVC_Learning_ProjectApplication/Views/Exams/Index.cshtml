@@ -38,6 +38,7 @@
                     <th style="min-width: 140px;">Modification Date</th>
                     <th>Dean</th>
                     <th>Student</th>
+                    <th>Class</th>
                     <th>Course Work</th>
                     <th>Midterm</th>
                     <th>Final Exam</th>
@@ -50,7 +51,8 @@
                     <tr>
                         <td>@exam.DateOfModificition.ToString("yyyy-MM-dd HH:mm")</td>
                         <td>@exam.DeanName</td>
-                        <td>@exam.StudentName</td>
+                        <td>@(exam.Student?.Name ?? "Undefined Student")</td>
+                        <td>@(exam.Class?.Name ?? "Undefined Class")</td>
                         <td>@exam.CourseWork</td>
                         <td>@exam.Midterm</td>
                         <td>@exam.Final_work</td>

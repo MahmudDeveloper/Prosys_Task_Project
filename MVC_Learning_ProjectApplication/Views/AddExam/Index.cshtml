@@ -10,7 +10,6 @@
 <div class="row">
 	<div class="col-4">
 		<div class="text-danger" asp-validation-Summary="All"></div>
-		@*Category selection*@
 		<div class="row mb-3">
 			<select asp-for="SelectedClassId" class="form-control">
 				<option value="">-- Select Class --</option>
@@ -30,7 +29,9 @@
 		<br />
 		@*Exam results Form*@
 		<form method="post" asp-controller="AddExam" asp-action="AddExam" id="formSale">
+			<input type="hidden" id="SelectedClassIdHidden" name="SelectedClassId" />
 			<input asp-for="SelectedStudentId" type="hidden" />
+			<input type="hidden" id="SelectedClassIdHidden" name="SelectedClassId" />
 
 			<div id="studentDetailPartial">
 				@* Textboxex will be here*@
@@ -51,6 +52,8 @@
 @section Scripts {
 	<script>
 		$(function () {
+			selectedClassIdGlobal = $("#SelectedClassId").val();
+
 			$("#formSale").hide();
 
 			var selectedClassId = $("#SelectedClassId").val();
@@ -59,8 +62,11 @@
 			}
 
 			$("#SelectedClassId").on("change", function () {
-				loadStudents($(this).val())
-			}); 
+				selectedClassIdGlobal = $(this).val();
+				$("#SelectedClassIdHidden").val(selectedClassIdGlobal);
+				loadStudents(selectedClassIdGlobal);
+			});
+
 
 			$('#studentsPartial').on('click', '.student-row', function () {
 				$('.student-row').removeClass('highlight');
@@ -72,6 +78,7 @@
 
 				if(studId>0){
 					$("#SelectedStudentId").val(studId);
+					$("#SelectedClassIdHidden").val(selectedClassIdGlobal);
 					$("#formSale").show();
 				}
 				else{

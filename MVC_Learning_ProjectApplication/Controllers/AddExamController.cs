@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MVC_Learning_ProjectApplication.Models;
 using MVC_Learning_ProjectApplication.ViewModels;
 
@@ -6,23 +7,38 @@ namespace MVC_Learning_ProjectApplication.Controllers
 {
     public class AddExamController : Controller
     {
+        private readonly AppDbContext _context;
+
+        public AddExamController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         public IActionResult Index()
         {
-            AddExamViewModel addExamViewModel = new AddExamViewModel()
+            var addExamViewModel = new AddExamViewModel
             {
-                Classes = ClassesRepository.GetClasses()
+                Classes = _context.Classes.ToList()
             };
+
             return View(addExamViewModel);
         }
+
         public IActionResult AddExamStudentPartial(int studentId)
         {
-            var student = StudentsRepository.GetStudentById(studentId);
-            var results = ExamsRepository.GetLastExamByStudentId("Dean",studentId);
+            var student = _context.Students
+                .Include(s => s.ClassC)
+                .FirstOrDefault(s => s.Id == studentId);
+
+            var results = _context.Exams
+                .Where(x => x.DeanName == "Dean" && x.StudentId == studentId)
+                .OrderByDescending(x => x.DateOfModificition)
+                .FirstOrDefault();
 
             var model = new AddExamViewModel
             {
                 SelectedStudentId = studentId,
-                CourseWork = results?.CourseWork?? 0,
+                CourseWork = results?.CourseWork ?? 0,
                 Midterm = results?.Midterm ?? 0,
                 FinalWork = results?.Final_work ?? 0
             };
@@ -36,22 +52,32 @@ namespace MVC_Learning_ProjectApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                var studentForStore = StudentsRepository.GetStudentById(addExamViewModel.SelectedStudentId);
-                if (studentForStore != null)
+                var student = _context.Students.Find(addExamViewModel.SelectedStudentId);
+                var classC = _context.Classes.Find(addExamViewModel.SelectedClassId);
+
+                if (student != null && classC != null)
                 {
-                    ExamsRepository.Add(
-                        "Dean",
-                        addExamViewModel.SelectedStudentId,
-                        studentForStore.Name,
-                        addExamViewModel.CourseWork ?? 0,
-                        addExamViewModel.Midterm ?? 0,
-                        addExamViewModel.FinalWork ?? 0
-                        );
+                    var exam = new Exam
+                    {
+                        DeanName = "Dean",
+                        StudentId = student.Id,
+                        ClassId = classC.Id,
+                        CourseWork = addExamViewModel.CourseWork ?? 0,
+                        Midterm = addExamViewModel.Midterm ?? 0,
+                        Final_work = addExamViewModel.FinalWork ?? 0,
+                        DateOfModificition = DateTime.Now
+                    };
+
+                    _context.Exams.Add(exam);
+                    _context.SaveChanges();
                 }
             }
-            addExamViewModel.Classes = ClassesRepository.GetClasses();
-            var student = StudentsRepository.GetStudentById(addExamViewModel.SelectedStudentId, true);
-            addExamViewModel.SelectedClassId = (student?.ClassId==null)?0:student.ClassId.Value;
+
+            addExamViewModel.Classes = _context.Classes.ToList();
+
+            var refreshedStudent = _context.Students.Find(addExamViewModel.SelectedStudentId);
+            addExamViewModel.SelectedClassId = refreshedStudent?.ClassId ?? 0;
+
             return View("Index", addExamViewModel);
         }
     }

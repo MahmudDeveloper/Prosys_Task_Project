@@ -1,36 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MVC_Learning_ProjectApplication.Models;
 
 namespace MVC_Learning_ProjectApplication.Controllers
 {
     public class ClassesController : Controller
     {
+        private readonly AppDbContext _context;
+
+        public ClassesController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         public IActionResult Index()
         {
-            var classes = ClassesRepository.GetClasses();
-            if (classes != null && classes.Count()>0)
-            {
-                return View(classes);
-            }
-            return View();
+            var classes = _context.Classes.ToList();
+            return View(classes);
         }
+
         public IActionResult Edit(int? id)
         {
             ViewBag.Action = "Edit";
-            var classC = ClassesRepository.GetClassById(id.HasValue?id.Value:0);
+            if (!id.HasValue) return NotFound();
+
+            var classC = _context.Classes.Find(id.Value);
+            if (classC == null) return NotFound();
+
             return View(classC);
         }
+
         [HttpPost]
         public IActionResult Edit(Class? classC)
         {
-            if (classC == null)
-            {
-                return BadRequest();
-            }
+            if (classC == null) return BadRequest();
 
             if (ModelState.IsValid)
             {
-                ClassesRepository.UpdateClass(classC.Id, classC);
+                _context.Classes.Update(classC);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
 
@@ -42,19 +50,28 @@ namespace MVC_Learning_ProjectApplication.Controllers
             ViewBag.Action = "AddClass";
             return View();
         }
+
         [HttpPost]
         public IActionResult AddClass(Class classC)
         {
             if (ModelState.IsValid)
             {
-                ClassesRepository.AddClass(classC);
+                _context.Classes.Add(classC);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(classC);
         }
-        public ActionResult DeleteClass(int id)
+
+        public IActionResult DeleteClass(int id)
         {
-            ClassesRepository.DeleteClass(id);
+            var classToDelete = _context.Classes.Find(id);
+            if (classToDelete != null)
+            {
+                _context.Classes.Remove(classToDelete);
+                _context.SaveChanges(); 
+            }
             return RedirectToAction(nameof(Index));
         }
     }

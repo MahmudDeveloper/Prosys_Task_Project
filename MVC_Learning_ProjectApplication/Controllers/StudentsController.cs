@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MVC_Learning_ProjectApplication.Models;
 using MVC_Learning_ProjectApplication.ViewModels;
 
@@ -6,25 +7,29 @@ namespace MVC_Learning_ProjectApplication.Controllers
 {
     public class StudentsController : Controller
     {
+        private readonly AppDbContext _context;
+
+        public StudentsController(AppDbContext context)
+        {
+            _context = context;
+        }
+
         public IActionResult Index()
         {
-            var _students = StudentsRepository.GetStudents(loadClass:true);
-            foreach (var student in _students)
-            {
-                if (student.ClassId.HasValue)
-                {
-                    var classC = ClassesRepository.GetClassById(student.ClassId.Value);
-                    student.ClassC = classC;
-                }
-            }
-            return View(_students);
+            var students = _context.Students
+                .Include(s => s.ClassC)
+                .ToList();
+
+            return View(students);
         }
+
         public IActionResult AddStudent()
         {
             ViewBag.Action = "AddStudent";
+
             var studentViewModel = new StudentViewModel
             {
-                Classes = ClassesRepository.GetClasses()
+                Classes = _context.Classes.ToList()
             };
 
             return View(studentViewModel);
@@ -35,44 +40,64 @@ namespace MVC_Learning_ProjectApplication.Controllers
         {
             if (ModelState.IsValid)
             {
-                StudentsRepository.AddStudent(viewModel.Student);
+                _context.Students.Add(viewModel.Student);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewBag.Action = "AddStudent";
-            viewModel.Classes = ClassesRepository.GetClasses();
+            viewModel.Classes = _context.Classes.ToList();
             return View(viewModel);
         }
 
         public IActionResult Edit(int id)
         {
             ViewBag.Action = "Edit";
+
+            var student = _context.Students.Find(id);
+            if (student == null) return NotFound();
+
             var studentViewModel = new StudentViewModel
             {
-                Student = StudentsRepository.GetStudentById(id, true)?? new Student(),
-                Classes = ClassesRepository.GetClasses()
+                Student = student,
+                Classes = _context.Classes.ToList()
             };
+
             return View(studentViewModel);
         }
+
         [HttpPost]
         public IActionResult Edit(int id, StudentViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                StudentsRepository.UpdateStudent(viewModel.Student.Id, viewModel.Student);
+                _context.Students.Update(viewModel.Student);
+                _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewBag.Action = "Edit";
-            viewModel.Classes = ClassesRepository.GetClasses();
+            viewModel.Classes = _context.Classes.ToList();
             return View(viewModel);
         }
+
         public IActionResult Delete(int id)
         {
-            StudentsRepository.DeleteStudent(id);
+            var student = _context.Students.Find(id);
+            if (student != null)
+            {
+                _context.Students.Remove(student);
+                _context.SaveChanges();
+            }
             return RedirectToAction(nameof(Index));
         }
+
         public IActionResult StudentsByClassPartial(int classId)
         {
-            var students = StudentsRepository.GetStudentsByClassId(classId);
+            var students = _context.Students
+                .Where(s => s.ClassId == classId)
+                .ToList();
+
             return PartialView("_Students", students);
         }
     }
